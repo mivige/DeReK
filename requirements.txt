@@ -1,0 +1,8 @@
+# Speech-to-Text dependencies
+vosk>=0.3.45
+sounddevice>=0.4.6
+
+# Audio processing
+numpy>=1.24.0
+
+# Additional utilities
