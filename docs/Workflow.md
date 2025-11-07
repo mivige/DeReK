@@ -1,52 +1,5 @@
 ### Workflow
 
-1. Call Begins
-Incoming call is received.
-2. Callbot Introduction and Option
-Callbot initiates script with an introduction.
-Caller is given option to either:
-Be transferred immediately to a person.
-Stay on the line to continue the scripted interaction.
-3. Speech to Text (STT) Transcribes Response
-Caller's response is transcribed for decision:
-If caller requests transfer, they are put in general queue on hold. End of process.
-If caller speech indicates panic or stress, caller is informed of immediate transfer to emergency line, then transferred. End of process.
-If caller confirms continuation, script proceeds.
-4. Script Continues via Text to Speech (TTS)
-Caller is asked about their request verbally.
-Caller's spoken response is transcribed.
-5. Summarize Request
-An LLM summarizes transcribed request into a JSON file capturing essential information.
-6. Move to Personal Information Collection
-Script collects personal info from caller.
-Responses transcribed and appended.
-7. Read Back Summary and Department for Confirmation
-Summarized info and determined department are read back to caller using TTS for confirmation.
-8. Parallel Sentiment Monitoring
-Second LLM continuously analyzes caller responses for sentiment/frustration level:
-If frustration is low: continue script as usual.
-If frustration is medium: skip re-verification of personal info, JSON ticket tagged with label "frustrated".
-If frustration is high: assure caller of imminent transfer to next available agent, JSON ticket tagged with label "angry".
-9. Ticket Submission and Call Transfer Logic
-JSON ticket (with or without frustration label) sent by email or internal system to relevant department.
-Check if a free agent is available:
-If yes, transfer call to agent immediately.
-If no, offer caller option to receive a version of the ticket without label and be called back later." "Stage 1: Request Capture
-Caller’s spoken request is transcribed.
-LLM 1 summarizes the request into a JSON file immediately at this point if frustration is detected (if high then the caller is assured that an agent from the required department is being located and a transfer is imminent; JSON file is created with summary of information so far and labelled angry and sent to the necessary department).
-LLM 2 simultaneously monitors caller sentiment for frustration throughout all stages.
-Stage 2: Personal Info Capture
-If caller frustration remains low, the script proceeds to collect personal information.
-If frustration is medium then the caller is assured that an agent from the required department is being located and a transfer is imminent; JSON file is created with summary of information so far and labelled angry and sent to the necessary department
-Stage 3: Readback for Confirmation
-The summarized request and department are read back to the caller for confirmation or correction (via TTS).
-If corrections are necessary repeat step 3
-if all information is correct send JSON file and attempt to connect to department
-Stage 5: agent not found
--          if agent not found script continues with caller being informed that a ticket has been submitted and they can choose to stay on the line and wait or be called back"
-
-Here is a detailed, internally consistent merged workflow for a callbot system, integrating both provided approaches with clear stage definitions and unified logic for handling caller requests, sentiment analysis, ticket creation, and agent transfer.
-
 ***
 
 ## Detailed Merged Callbot Workflow
