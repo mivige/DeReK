@@ -147,6 +147,15 @@ def run_call_handler():
                 print(f"[CALL END] Transfer requested: {nlu_result['transfer_reason']}")
                 print(f"[SYSTEM] Call would be transferred to agent")
                 print(f"[SYSTEM] Collected data: {nlu_result['claim_data']}")
+                ticket = nlu_result['claim_data']                    
+                # Post to n8n if available
+                if n8n_client:
+                    try:
+                        result = n8n_client.post_incident_from_dict(ticket)
+                        print(f"[N8N] Ticket posted successfully: {result}")
+                    except Exception as e:
+                        print(f"[ERROR] Failed to post ticket to n8n: {e}")
+                    
                 call_active = False
                 stt.stop_listening()
                 return

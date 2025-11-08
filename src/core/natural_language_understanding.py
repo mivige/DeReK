@@ -178,36 +178,6 @@ class ConversationalNLU:
             # Check if emergency transfer needed
             if emergency_detected:
                 self.state = ConversationState.EMERGENCY_TRANSFER
-                # Attempt to send partial claim data to n8n (or other webhook) even if incomplete
-                partial_sent = False
-                n8n_url = os.getenv("N8N_WEBHOOK_URL")
-                if n8n_url:
-                    try:
-                        # Fill missing values with 'unknown' for identifier/name fields or 'unspecified' for descriptive fields.
-                        def _fill_missing(key, val):
-                            if val is None or (isinstance(val, str) and val.strip() == ""):
-                                if key in ("policyId", "customerName"):
-                                    return "unknown"
-                                return "unspecified"
-                            return val
-
-                        clean_claim = {k: _fill_missing(k, v) for k, v in self.claim_data.items()}
-
-                        payload = {
-                            "claim_data": clean_claim,
-                            "emergency": True,
-                            "emergency_reason": emergency_reason,
-                            "partial": True
-                        }
-                        # Debug log the exact payload and headers
-                        print(f"[NLU] Posting partial claim to n8n: {json.dumps(payload, ensure_ascii=False)}")
-                        resp = requests.post(n8n_url, json=payload, headers={"Content-Type": "application/json"}, timeout=8)
-                        print(f"[NLU] n8n response: {resp.status_code} {resp.text}")
-                        resp.raise_for_status()
-                        partial_sent = True
-                    except RequestException as e:
-                        print(f"[NLU] Failed to POST partial claim to n8n: {e}")
-
                 return {
                     "response": "I understand this is urgent. I'm connecting you with the emergency team who can better assist you. Please hold in line!",
                     "should_transfer": True,
@@ -215,8 +185,7 @@ class ConversationalNLU:
                     "frustration_score": self.frustration_score,
                     "claim_data": self.claim_data,
                     "state": self.state.value,
-                    "is_complete": False,
-                    "partial_claim_sent": partial_sent
+                    "is_complete": False
                 }
             
             # Check if frustration score is too high
