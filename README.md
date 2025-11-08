@@ -28,6 +28,12 @@ python pipeline.py
 ```
 
 ---
+## Typical Conversation Pipeline
+
+![Conversation pipeline graphical overview](docs/pipeline_graphical.png)
+
+Figure: High-level graphical pipeline illustrating call flows.
+
 
 ## System Architecture Diagram
 
