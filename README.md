@@ -15,10 +15,10 @@ N8N_WEBHOOK_URL=your_webhook_url  # Optional
 ```
 
 **Download Vosk Model:**
-```bash
-# Download from https://alphacephei.com/vosk/models
-# Default model for this project is vosk-model-en-us-0.22 with 1.8G parameters, an accurate generic US English model, to use a different model you MUST change it's path in pipeline.py
-# Extract to models/vosk-model-en-us-0.22/
+
+1. Download from https://alphacephei.com/vosk/models
+2. Default model for this project is vosk-model-en-us-0.22 with 1.8G parameters, an accurate generic US English model, to use a different model you MUST change it's path in pipeline.py
+3. Extract to models/vosk-model-en-us-0.22/
 ```
 
 ### Run the Pipeline
@@ -106,10 +106,9 @@ python pipeline.py
 - NLU (OpenAI): ~500-1500ms per request
 - TTS (ElevenLabs): ~300-800ms generation + playback time
 
-**Total Response Time:** ~1-3 seconds from user finishing speech to assistant starting to speak
+**Total Response Time:** ~0.8-2.5 seconds from user finishing speech to assistant starting to speak
 
-**Token Usage (per interaction):**
-- ~200-300 tokens
+**Token Usage (per interaction):** ~200-300 tokens
 
 ---
 
@@ -166,7 +165,8 @@ AudioCapture.list_devices()
 - [ElevenLabs API Docs](https://elevenlabs.io/docs/)
 
 ### Related Documentation
-- [`voice_to_voice.md`](./voice_to_voice.md) - Theoretical concepts and alternatives
-- [`Agent-Matching Algorithm`](./Agent-Matching%20Algorithm) - How to route to human agents
-- [`Text_to_ticket.md`](./Text_to_ticket.md) - Claim data schema and extraction
-- [`Workflow.md`](./Workflow.md) - Overall system workflow
+- [`voice_to_voice.md`](docs/voice_to_voice.md) - Theoretical concepts and alternatives
+- [`implementation.md`](docs/implementation.md) - Actual implementation of the voice-to-voice call handler system built
+- [`Agent-Matching Algorithm`](docs/Agent-Matching%20Algorithm) - How to route to human agents
+- [`Text_to_ticket.md`](docs/Text_to_ticket.md) - Claim data schema and extraction
+- [`Workflow.md`](docs/Workflow.md) - Overall system workflow
