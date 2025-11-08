@@ -38,13 +38,13 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Estimated Damage": "={{ $json.body.estimatedDamage }}",
+            "Estimated Damage": "={{ $json.body.estimatedDamage || 0}}",
             "Approved Amount": 0,
-            "Policy ID": "={{ $json.body.policyId }}",
-            "Customer Name": "={{ $json.body.customerName }}",
-            "Incident Type": "={{ $json.body.incidentType }}",
-            "Description": "={{ $json.body.description }}",
-            "Location": "={{ $json.body.location }}",
+            "Policy ID": "={{ $json.body.policyId || 'Unknown'}}",
+            "Customer Name": "={{ $json.body.customerName || 'Unknown'}}",
+            "Incident Type": "={{ $json.body.incidentType || 'General Accident'}}",
+            "Description": "={{ $json.body.description || ''}}",
+            "Location": "={{ $json.body.location || 'Unknown'}}",
             "Date Reported": "={{ $now }}",
             "Status": "Submitted"
           },
@@ -247,6 +247,169 @@
         384,
         -64
       ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appTutL3UMHAhVNgW",
+          "mode": "list",
+          "cachedResultName": "Logs",
+          "cachedResultUrl": "https://airtable.com/appTutL3UMHAhVNgW"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblzksbma25RrqA8z",
+          "mode": "list",
+          "cachedResultName": "Log",
+          "cachedResultUrl": "https://airtable.com/appTutL3UMHAhVNgW/tblzksbma25RrqA8z"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Action Type": "Created",
+            "Details": "={{ $json.fields['Customer Name']+\" reported an \"+$json.fields['Incident Type']+\" on \"+ $json.fields.Location+\".\"}}",
+            "Created By": "={{ \"Customer: \"+$json.fields['Customer Name'] || \"n8n\" }}",
+            "Log Entry": "={{ \"Created new Claim related to policy \"+$json.fields['Policy ID']+\". \" }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Log Entry",
+              "displayName": "Log Entry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Related Task",
+              "displayName": "Related Task",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created By",
+              "displayName": "Created By",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Action Type",
+              "displayName": "Action Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Created",
+                  "value": "Created"
+                },
+                {
+                  "name": "Edited",
+                  "value": "Edited"
+                },
+                {
+                  "name": "Status Change",
+                  "value": "Status Change"
+                },
+                {
+                  "name": "Comment",
+                  "value": "Comment"
+                },
+                {
+                  "name": "Attachment Added",
+                  "value": "Attachment Added"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Details",
+              "displayName": "Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Attachments",
+              "displayName": "Attachments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "d353f675-0e34-4572-a2dc-ea1ddc891ab4",
+      "name": "Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -240
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "n18Am3Fzlda2YDsU",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
     }
   ],
   "pinData": {
@@ -311,6 +474,11 @@
             "node": "Respond - Success",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Log",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -320,7 +488,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ab7d89a3-355c-4fc7-8d02-d2585687173d",
+  "versionId": "42628cc1-f6e7-4949-8d52-60b125421851",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "0f9b227d2d84f28d02c29ac5f2e74f13ab70b9a99d96da9de968dd11ca410a90"
