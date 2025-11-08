@@ -8,7 +8,7 @@ Use concise, concrete prompts; avoid double questions; keep each step atomic.
 If emergency intent is detected at any time, jump to Emergency Transfer.
 
 Stage 1: Greeting and choice
-“"Hello, thanks for calling. I’m your automated assistant. You can speak with a human now, but wait times may be longer. If you stay with me, I’ll help quickly or connect you to the right department."”
+“"Hello, thanks for calling. I’m your automated assistant. You can speak with a human now, but wait times may be longer. If you stay with me, I’ll help quickly or connect you directly to the right department."”
 
 If caller indicates wish to be transferred:
 

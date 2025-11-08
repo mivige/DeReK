@@ -10,10 +10,12 @@ This module processes speech transcriptions in real-time, performing:
 
 import json
 from openai import OpenAI
-import os
 from dotenv import load_dotenv
+import os
 from typing import Dict, Any, List
 from enum import Enum
+import requests
+from requests.exceptions import RequestException
 
 load_dotenv()
 
@@ -25,6 +27,7 @@ class ConversationState(Enum):
     GATHERING_INCIDENT_DETAILS = "gathering_incident_details"
     GATHERING_DAMAGE_INFO = "gathering_damage_info"
     CONFIRMING = "confirming"
+    TO_REVIEW = "to_review"
     COMPLETE = "complete"
     EMERGENCY_TRANSFER = "emergency_transfer"
 
@@ -72,13 +75,67 @@ class ConversationalNLU:
         """
         # Add user input to context window
         self.conversation_history.append(f"CALLER: {user_text}")
+        # canonical is_complete flag for returns (keeps pipeline checks consistent)
+        is_complete = False
         
+        # --- existing local TO_REVIEW handling and other logic happen below ---
+        # Local handling for the "to_review" confirmation flow (robust detection)
+        if self.state == ConversationState.TO_REVIEW:
+            lc = user_text.lower().strip()
+
+            def is_affirmative(s: str) -> bool:
+                return bool(re.search(r'\b(yes|yep|yeah|y|correct|confirm|that\'s correct|all set|looks good|right|thanks|thank you|bye|goodbye)\b', s))
+
+            def is_negative(s: str) -> bool:
+                return bool(re.search(r'\b(no|not|change|incorrect|wrong|edit|update|needs|nope)\b', s))
+
+            if is_affirmative(lc):
+                self.state = ConversationState.COMPLETE
+                is_complete = True
+                self.confirm_attempts = 0
+                self.conversation_history.append("ASSISTANT: Claim confirmed by caller.")
+                return {
+                    "response": "Thank you — your claim has been recorded. We will follow up shortly. Goodbye.",
+                    "should_transfer": False,
+                    "transfer_reason": "",
+                    "frustration_score": self.frustration_score,
+                    "claim_data": self.claim_data,
+                    "state": self.state.value,
+                    "is_complete": True
+                }
+
+            # Negative / change requests -> go back to collecting details
+            if is_negative(lc):
+                self.state = ConversationState.GATHERING_INCIDENT_DETAILS
+                self.conversation_history.append("ASSISTANT: Caller requested changes; returning to information collection.")
+                return {
+                    "response": "I understand you'd like to make changes. Which detail would you like to update? (policy number, name, incident description, location, estimated damage, incident date)",
+                    "should_transfer": False,
+                    "transfer_reason": "",
+                    "frustration_score": self.frustration_score,
+                    "claim_data": self.claim_data,
+                    "state": self.state.value,
+                    "is_complete": False
+                }
+
+            # Unclear -> ask for a clear yes/no or specify change
+            return {
+                "response": "Could you please confirm: is the information I summarized correct? Say 'yes' to confirm or tell me what to change.",
+                "should_transfer": False,
+                "transfer_reason": "",
+                "frustration_score": self.frustration_score,
+                "claim_data": self.claim_data,
+                "state": self.state.value,
+                "is_complete": False
+            }
+        # end TO_REVIEW handling
+         
         # Build dynamic context (only what changes)
         dynamic_context = f"""
-CURRENT STATE: {self.state.value}
-CURRENT CLAIM DATA: {json.dumps(self.claim_data, indent=2)}
+ CURRENT STATE: {self.state.value}
+ CURRENT CLAIM DATA: {json.dumps(self.claim_data, indent=2)}
 
-CONVERSATION:
+ CONVERSATION:
 {chr(10).join(self.conversation_history[-6:])}
 """
         
@@ -120,6 +177,23 @@ CONVERSATION:
             # Check if emergency transfer needed
             if emergency_detected:
                 self.state = ConversationState.EMERGENCY_TRANSFER
+                # Attempt to send partial claim data to n8n (or other webhook) even if incomplete
+                partial_sent = False
+                n8n_url = os.getenv("N8N_WEBHOOK_URL")
+                if n8n_url:
+                    try:
+                        payload = {
+                            "claim_data": self.claim_data,
+                            "emergency": True,
+                            "emergency_reason": emergency_reason,
+                            "partial": True
+                        }
+                        resp = requests.post(n8n_url, json=payload, timeout=5)
+                        resp.raise_for_status()
+                        partial_sent = True
+                    except RequestException as e:
+                        print(f"[NLU] Failed to POST partial claim to n8n: {e}")
+
                 return {
                     "response": "I understand this is urgent. I'm connecting you with the emergency team who can better assist you. Please hold in line!",
                     "should_transfer": True,
@@ -127,7 +201,8 @@ CONVERSATION:
                     "frustration_score": self.frustration_score,
                     "claim_data": self.claim_data,
                     "state": self.state.value,
-                    "is_complete": False
+                    "is_complete": False,
+                    "partial_claim_sent": partial_sent
                 }
             
             # Check if frustration score is too high
@@ -143,20 +218,40 @@ CONVERSATION:
                     "is_complete": False
                 }
             
-            # Check if claim is complete
+            # Check if claim is complete -> switch to TO_REVIEW and ask caller to confirm summary
             is_complete = self._check_claim_completion()
-            if is_complete:
-                self.state = ConversationState.COMPLETE
+            if is_complete and self.state not in (ConversationState.TO_REVIEW, ConversationState.COMPLETE):
+                # Move to TO_REVIEW and ask the caller to verify the extracted claim
+                self.state = ConversationState.TO_REVIEW
+                summary = json.dumps(self.claim_data, indent=2)
+                confirm_text = (
+                    "I've collected the following information: "
+                    f"{summary}. Is this information correct? Please say 'yes' to confirm or tell me what to change."
+                )
+                # Add assistant confirmation prompt to history
+                self.conversation_history.append(f"ASSISTANT: {confirm_text}")
+                return {
+                    "response": confirm_text,
+                    "should_transfer": False,
+                    "transfer_reason": "",
+                    "frustration_score": self.frustration_score,
+                    "claim_data": self.claim_data,
+                    "state": self.state.value,
+                    "is_complete": False
+                }
+
+            # final normalized return — ensure is_complete reflects the ConversationState
+            final_is_complete = bool(is_complete or (self.state == ConversationState.COMPLETE))
             
             return {
-                "response": assistant_response,
-                "should_transfer": False,
-                "transfer_reason": "",
-                "frustration_score": self.frustration_score,
-                "claim_data": self.claim_data,
-                "state": self.state.value,
-                "is_complete": is_complete
-            }
+                 "response": assistant_response,
+                 "should_transfer": False,
+                 "transfer_reason": "",
+                 "frustration_score": self.frustration_score,
+                 "claim_data": self.claim_data,
+                 "state": self.state.value,
+                 "is_complete": final_is_complete
+             }
             
         except Exception as e:
             print(f"[NLU Error] {e}")
