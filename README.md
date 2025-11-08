@@ -179,6 +179,3 @@ AudioCapture.list_devices()
 ### Related Documentation
 - [`voice_to_voice.md`](docs/voice_to_voice.md) - Theoretical concepts and alternatives
 - [`implementation.md`](docs/implementation.md) - Actual implementation of the voice-to-voice call handler system built
-- [`Agent-Matching Algorithm`](docs/Agent-Matching%20Algorithm) - How to route to human agents
-- [`Text_to_ticket.md`](docs/Text_to_ticket.md) - Claim data schema and extraction
-- [`Workflow.md`](docs/Workflow.md) - Overall system workflow
