@@ -105,7 +105,91 @@ if __name__ == "__main__":
     )
 
     # Generate structured ticket
-    ticket = text_to_incident_ticket(text)
+    ticket = text_to_incident_ticket(text)    # ...existing code...
+    def text_to_speech(text_input: str, blocking: bool = True):
+        """
+        Convert text to speech and play it.
+    
+        Args:
+            text_input: The text to be converted to speech.
+            blocking: If True wait until playback finishes; if False play in background.
+        """
+        # Stream audio from ElevenLabs
+        audio_stream = client.text_to_speech.convert(
+            voice_id="2EiwWnXFnvU5JabPnv8n",
+            model_id="eleven_multilingual_v2",
+            text=text_input
+        )
+    
+        # Combine all chunks from generator
+        audio_bytes = b"".join(audio_stream)
+    
+        # Decode MP3 to AudioSegment
+        audio = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3")
+    
+        # Add 0.5 seconds of silence to avoid cutoff at start
+        silence = AudioSegment.silent(duration=500)
+        audio = silence + audio
+    
+        def _play(aud: AudioSegment):
+            play_obj = sa.play_buffer(
+                aud.raw_data,
+                num_channels=aud.channels,
+                bytes_per_sample=aud.sample_width,
+                sample_rate=aud.frame_rate
+            )
+            play_obj.wait_done()
+    
+        if blocking:
+            _play(audio)
+        else:
+            import threading
+            threading.Thread(target=_play, args=(audio,), daemon=True).start()
+    
+        return
+    # ...existing code...    # ...existing code...
+    def text_to_speech(text_input: str, blocking: bool = True):
+        """
+        Convert text to speech and play it.
+    
+        Args:
+            text_input: The text to be converted to speech.
+            blocking: If True wait until playback finishes; if False play in background.
+        """
+        # Stream audio from ElevenLabs
+        audio_stream = client.text_to_speech.convert(
+            voice_id="2EiwWnXFnvU5JabPnv8n",
+            model_id="eleven_multilingual_v2",
+            text=text_input
+        )
+    
+        # Combine all chunks from generator
+        audio_bytes = b"".join(audio_stream)
+    
+        # Decode MP3 to AudioSegment
+        audio = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3")
+    
+        # Add 0.5 seconds of silence to avoid cutoff at start
+        silence = AudioSegment.silent(duration=500)
+        audio = silence + audio
+    
+        def _play(aud: AudioSegment):
+            play_obj = sa.play_buffer(
+                aud.raw_data,
+                num_channels=aud.channels,
+                bytes_per_sample=aud.sample_width,
+                sample_rate=aud.frame_rate
+            )
+            play_obj.wait_done()
+    
+        if blocking:
+            _play(audio)
+        else:
+            import threading
+            threading.Thread(target=_play, args=(audio,), daemon=True).start()
+    
+        return
+    # ...existing code...
 
     # Print the result nicely formatted
     print("\n--- Generated Ticket ---")
