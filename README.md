@@ -3,12 +3,14 @@
 
 <div align="center">
 
-**🏆 Built at the 32-hour FORGe AI Hackathon**  
+**🏆 Built at the 24-hour FORGe AI Hackathon**  
 *Lisbon AI Week 2025*
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-green.svg)](https://openai.com/)
 [![Vosk](https://img.shields.io/badge/Vosk-Offline%20STT-orange.svg)](https://alphacephei.com/vosk/)
+[![ElevenLabs](https://img.shields.io/badge/ElevenLabs-TTS-purple.svg)](https://elevenlabs.io/)
+[![n8n](https://img.shields.io/badge/n8n-Automation-red.svg)](https://n8n.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 *An intelligent AI voice agent that handles insurance claims with empathy, efficiency, and emergency awareness*
@@ -21,7 +23,7 @@
 
 Imagine calling your insurance company after a car accident—stressed, frustrated, and needing immediate help. You're put on hold, transferred multiple times, and forced to repeat your story to different agents. **DeReK** was born to solve this problem.
 
-During the 32-hour FORGe AI Hackathon in Lisbon (AI Tech Week 2025), our team built an empathetic AI voice agent that:
+During the 24-hour FORGe AI Hackathon in Lisbon (AI Tech Week 2025), our team built an empathetic AI voice agent that:
 - 🎙️ **Listens** to your claim in natural conversation (no phone tree menus!)
 - 🧠 **Understands** your situation, including emotions and urgency
 - 🚨 **Detects emergencies** and prioritizes accordingly
@@ -183,7 +185,7 @@ Figure: High-level graphical typical conversation pipeline illustrating call flo
 
 ## 🎨 Design Decisions
 
-Building DeReK in 32 hours required smart technology choices:
+Building DeReK in 24 hours required smart technology choices:
 
 ### Why Offline STT (Vosk)?
 ✅ **No API costs** - Critical for hackathon budget constraints  
@@ -225,7 +227,7 @@ Most voice agents make multiple API calls per turn (intent detection, entity ext
 
 **Total Time:** ~0.8-2.5 seconds from user finishing speech to DeReK responding
 
-**Token Usage:** ~200-300 tokens per turn (~$0.0004 per interaction)
+**Token Usage:** ~200-300 tokens per turn (about $0.0004 per interaction)
 
 **Accuracy:**
 - Transcription: ~92% word accuracy (conversational English)
@@ -353,7 +355,7 @@ ls models/vosk-model-en-us-0.22/am/final.mdl
 
 ## 🚀 Future Enhancements
 
-DeReK was built in 32 hours—here's what we'd add with more time:
+DeReK was built in 24 hours, here's what we'd add with more time:
 
 ### Near-Term (v1.1)
 - [ ] **Voice Activity Detection (VAD)** - Better silence detection
@@ -400,10 +402,10 @@ DeReK was built in 32 hours—here's what we'd add with more time:
 
 ## 🙏 Acknowledgments
 
-**Built by Team Error502 at FORGe AI Hackathon 2025**
+**Built by Team Error503 at FORGe AI Hackathon 2025**
 
 Special thanks to:
-- 🎪 **FORGe Organizers** - For hosting an incredible 32-hour hackathon
+- 🎪 **FORGe Organizers** - For hosting an incredible 24-hour hackathon
 - 🇵🇹 **Lisbon AI Week 2025** - For bringing together the AI community
 
 ---
@@ -416,7 +418,7 @@ This project is licensed under the x License - see the [LICENSE](LICENSE) file f
 
 <div align="center">
 
-**Built with ❤️ in 32 hours at Lisbon AI Week 2025**
+**Built with ❤️ in 24 hours at Lisbon AI Week 2025**
 
 *"Making insurance claims less stressful, one conversation at a time"*
 
